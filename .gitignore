@@ -1,53 +1,24 @@
-# =====================================================
-# raspi-agent-real - .gitignore
-# =====================================================
-
-# Node.js / npm
 node_modules/
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+yarn-*.log*
+pnpm-debug.log*
 package-lock.json
-
-# Environment
 .env
-.env.local
-.env.production
-.env.test
-
-# Datos locales
+.env.*
+!.env.example
 data/
-*.db
-*.sqlite
-*.sqlite3
-*.log
-*.pid
-*.seed
-
-# Archivos temporales
-*.tmp
-*.bak
-*.swp
-*.swo
+!data/.gitkeep
 .DS_Store
 Thumbs.db
-
-# Compilación nativa de serialport / i2c-bus
-build/
-obj/
-dist/
-out/
-
-# Archivos del sistema
+*.swp
 .idea/
 .vscode/
-*.iml
-
-# Archivos de compresión
+*.code-workspace
+dist/
+build/
+coverage/
+.eslintcache
 *.zip
-*.tar
-*.tar.gz
-
-# Copias de respaldo o auto guardado
-*~
-# =====================================================
+*.tgz
+*.log
+*.node

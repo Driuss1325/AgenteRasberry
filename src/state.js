@@ -5,6 +5,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.join(__dirname, '..', 'data');
 const apiKeyFile = path.join(dataDir, 'apikey.json');
 const queueFile = path.join(dataDir, 'queue.json');
+const deviceFile = path.join(dataDir, 'device.json');
+const jwtFile = path.join(dataDir, 'jwt.json');
 
 async function ensureDir() { try { await fs.mkdir(dataDir, { recursive: true }); } catch {} }
 
@@ -14,7 +16,6 @@ export async function loadApiKey() {
   try { const raw = await fs.readFile(apiKeyFile, 'utf8'); return JSON.parse(raw).apiKey || ''; }
   catch { return ''; }
 }
-
 export async function saveApiKey(apiKey) {
   await ensureDir();
   await fs.writeFile(apiKeyFile, JSON.stringify({ apiKey }, null, 2), 'utf8');
@@ -27,7 +28,6 @@ export async function enqueue(payload) {
   arr.push({ ts: Date.now(), payload });
   await fs.writeFile(queueFile, JSON.stringify(arr, null, 2), 'utf8');
 }
-
 export async function flushQueue(senderFn) {
   await ensureDir();
   let arr = [];
@@ -40,4 +40,25 @@ export async function flushQueue(senderFn) {
   }
   await fs.writeFile(queueFile, JSON.stringify(remaining, null, 2), 'utf8');
   return { flushed: ok, remaining: remaining.length };
+}
+
+// device & jwt
+export async function saveDeviceInfo(obj) {
+  await ensureDir();
+  const cur = await loadDeviceInfo();
+  await fs.writeFile(deviceFile, JSON.stringify({ ...cur, ...obj }, null, 2), 'utf8');
+}
+export async function loadDeviceInfo() {
+  await ensureDir();
+  try { return JSON.parse(await fs.readFile(deviceFile, 'utf8')); }
+  catch { return {}; }
+}
+export async function saveJwt(token) {
+  await ensureDir();
+  await fs.writeFile(jwtFile, JSON.stringify({ token, savedAt: Date.now() }, null, 2), 'utf8');
+}
+export async function loadJwt() {
+  await ensureDir();
+  try { return JSON.parse(await fs.readFile(jwtFile, 'utf8'))?.token || ''; }
+  catch { return ''; }
 }

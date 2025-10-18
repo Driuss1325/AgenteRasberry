@@ -25,10 +25,17 @@ export const cfg = {
   // Fallback GPS
   lat: Number(process.env.LAT || 0),
   lng: Number(process.env.LNG || 0),
-  gpsAccuracy: Number(process.env.GPS_ACCURACY || 30)
+  gpsAccuracy: Number(process.env.GPS_ACCURACY || 30),
+
+  // Auto provision
+  autoProvision: String(process.env.AUTO_PROVISION || 'false').toLowerCase() === 'true',
+  agentEmail: process.env.AGENT_EMAIL || '',
+  agentPassword: process.env.AGENT_PASSWORD || '',
+  deviceName: process.env.DEVICE_NAME || '',
+  deviceLocation: process.env.DEVICE_LOCATION || '',
+  ownerId: process.env.OWNER_ID ? Number(process.env.OWNER_ID) : undefined
 };
 
 export function assertBaseConfig() {
   if (!cfg.backendUrl) throw new Error('BACKEND_URL es requerido');
-  if (!cfg.deviceId) throw new Error('DEVICE_ID es requerido');
 }

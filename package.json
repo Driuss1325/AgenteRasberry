@@ -1,6 +1,6 @@
 {
   "name": "raspi-agent-real",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "type": "module",
   "main": "src/index.js",
   "engines": {
@@ -10,7 +10,9 @@
     "start": "node src/index.js run",
     "once": "node src/index.js once",
     "enroll": "node src/index.js enroll",
-    "set-cron": "node src/index.js set-cron \"*/30 * * * * *\""
+    "set-cron": "node src/index.js set-cron \"*/30 * * * * *\"",
+    "provision": "node src/index.js provision",
+    "get-jwt": "node scripts/get-jwt.js"
   },
   "dependencies": {
     "axios": "^1.7.7",
