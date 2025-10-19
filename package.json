@@ -15,7 +15,8 @@
     "get-jwt": "node scripts/get-jwt.js",
     "read:shtc3": "node scripts/read-shtc3.js",
     "read:pms": "node scripts/read-pms.js",
-    "read:gps": "node scripts/read-gps.js"
+    "read:gps": "node scripts/read-gps.js",
+    "read:gps:raw": "node scripts/read-gps-raw.js"
   },
   "dependencies": {
     "axios": "^1.7.7",
