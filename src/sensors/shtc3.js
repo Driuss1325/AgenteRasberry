@@ -15,7 +15,7 @@ export class SHTC3 {
   }
 
   async init() {
-    if (this.bus) return;
+    if (this.bus || this.opening) return;
     this.opening = true;
     try {
       this.bus = await i2c.openPromisified(this.busNum);
@@ -26,22 +26,30 @@ export class SHTC3 {
     }
   }
 
+  async ensureBus() {
+    if (!this.bus) await this.init();
+  }
+
   async close() {
     try { if (this.bus) await this.bus.close(); } catch {}
     this.bus = null;
   }
 
   async reset() {
+    await this.ensureBus();
     await this.#writeCommand(SHTC3_Software_RES);
     await this.#sleep(10);
   }
   async wakeUp() {
+    await this.ensureBus();
     await this.#writeCommand(SHTC3_WakeUp);
     await this.#sleep(10);
   }
 
   async readTemperature() {
+    // Reintentos + re-open si hace falta
     return await this.#retry(async () => {
+      await this.ensureBus();
       await this.wakeUp();
       await this.#writeCommand(SHTC3_NM_CD_ReadTH);
       await this.#sleep(20);
@@ -54,6 +62,7 @@ export class SHTC3 {
 
   async readHumidity() {
     return await this.#retry(async () => {
+      await this.ensureBus();
       await this.wakeUp();
       await this.#writeCommand(SHTC3_NM_CD_ReadRH);
       await this.#sleep(20);
@@ -66,6 +75,7 @@ export class SHTC3 {
 
   // ===== helpers =====
   async #writeCommand(cmd) {
+    await this.ensureBus();
     const b = Buffer.from([(cmd >> 8) & 0xff, cmd & 0xff]);
     await this.bus.i2cWrite(SHTC3_I2C_ADDRESS, b.length, b);
   }
@@ -80,19 +90,18 @@ export class SHTC3 {
     let lastErr;
     for (let i = 0; i < attempts; i++) {
       try {
-        if (!this.bus) await this.init();
+        await this.ensureBus();
         return await fn();
       } catch (e) {
         lastErr = e;
         const msg = String(e?.message || e);
-        // si es EIO o bus roto, reabrimos
-        if (/EIO|i\/o error|Remote I\/O error|ENXIO|Remote/.test(msg)) {
+        // Si el bus está caído o hay EIO, re-abrir y reintentar
+        if (/Cannot read properties of null|EIO|Remote I\/O|ENXIO|i2c/i.test(msg)) {
           await this.close();
           await this.#sleep(30);
-          continue;
+          continue; // reintenta abriendo de nuevo
         }
-        // si es CRC, reintenta una vez más con breve espera
-        if (/CRC/.test(msg)) {
+        if (/CRC/.test(msg)) { // ruido puntual
           await this.#sleep(10);
           continue;
         }
