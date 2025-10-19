@@ -13,9 +13,27 @@ export async function initSensors(){
 }
 
 export async function readSensors(){
-  if(!sht) throw new Error('SHTC3 no inicializado');
-  if(!pms) throw new Error('PMS5003 no inicializado');
-  const [t,h]=await Promise.all([sht.readTemperature(),sht.readHumidity()]);
-  const { pm25, pm10 } = pms.read();
-  return { temperature:Number(t.toFixed(2)), humidity:Number(h.toFixed(2)), pm25:Number(pm25), pm10:Number(pm10) };
+  const out = {};
+  // Temperatura / Humedad
+  if (sht) {
+    try {
+      const [t,h] = await Promise.all([sht.readTemperature(), sht.readHumidity()]);
+      out.temperature = Number(t.toFixed(2));
+      out.humidity = Number(h.toFixed(2));
+    } catch (e) {
+      logger.warn('[Sensors] SHTC3 read error', { message: e?.message });
+    }
+  }
+  // Partículas
+  if (pms) {
+    try {
+      const { pm25, pm10 } = pms.read();
+      out.pm25 = Number(pm25);
+      out.pm10 = Number(pm10);
+    } catch (e) {
+      logger.warn('[Sensors] PMS5003 read error', { message: e?.message });
+    }
+  }
+  if (Object.keys(out).length === 0) throw new Error('Ningún sensor disponible');
+  return out;
 }
