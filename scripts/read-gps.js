@@ -33,7 +33,7 @@ async function main() {
     process.exit(0);
   } catch (e) {
     console.error('[SIM7000G] ERROR:', e?.message || e);
-    console.error('> Revisa: antena GNSS, puerto AT correcto (/dev/ttyUSB2 normalmente), grupo "dialout",');
+    console.error('> Revisa: antena GNSS, puerto AT correcto (/dev/ttyUSB3 normalmente), grupo "dialout",');
     console.error('> vista al cielo o ventana, y espera inicial 30-120s para primer fix en frío.');
     process.exit(1);
   }

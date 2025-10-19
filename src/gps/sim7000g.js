@@ -2,7 +2,7 @@ import { SerialPort } from 'serialport';
 import { logger } from '../logger.js';
 
 export class SIM7000G {
-  constructor(path='/dev/ttyUSB2', baudRate=115200, profile='CGNS', autoPower=true){
+  constructor(path='/dev/ttyUSB3', baudRate=115200, profile='CGNS', autoPower=true){
     this.path=path; this.baudRate=baudRate; this.profile=profile; this.autoPower=autoPower;
     this.port=null; this.rx='';
   }

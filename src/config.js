@@ -16,7 +16,7 @@ export const cfg = {
     baud: Number(process.env.PMS_BAUD || 9600)
   },
   sim7: {
-    port: process.env.SIM7_PORT || '/dev/ttyUSB2',
+    port: process.env.SIM7_PORT || '/dev/ttyUSB3',
     baud: Number(process.env.SIM7_BAUD || 115200),
     gnssPowerOn: String(process.env.SIM7_GNSS_POWER_ON || '1') === '1',
     gnssProfile: (process.env.SIM7_GNSS_PROFILE || 'CGNS').toUpperCase()
