@@ -1,3 +1,4 @@
+// src/sensors/sensors.js
 import { cfg } from '../config.js';
 import { logger } from '../logger.js';
 import { SHTC3 } from './shtc3.js';
@@ -6,37 +7,24 @@ import { PMS5003 } from './pms5003.js';
 let sht=null, pms=null;
 
 export async function initSensors(){
-  try{ sht=new SHTC3(cfg.i2cBus); await sht.init(); }
+  try { sht = new SHTC3(cfg.i2cBus); await sht.init(); }
   catch(e){ logger.error('[Sensors] SHTC3 init failed',{error:e?.message}); sht=null; }
-  try{ pms=new PMS5003(cfg.pms.port, cfg.pms.baud); await pms.init(); }
+
+  try { pms = new PMS5003(cfg.pms.port, cfg.pms.baud); await pms.init(); }
   catch(e){ logger.error('[Sensors] PMS5003 init failed',{error:e?.message}); pms=null; }
 }
 
 export async function readSensors(){
   const out = {};
 
-  // SHTC3
+  // SHTC3 (con lock/reintentos internos)
   if (sht) {
     try {
-      const [t,h] = await Promise.all([sht.readTemperature(), sht.readHumidity()]);
-      out.temperature = Number(t.toFixed(2));
-      out.humidity = Number(h.toFixed(2));
-    } catch (e1) {
-      const msg = String(e1?.message || e1);
-      // Si se cayó el bus (null), forzar re-init una vez y reintentar
-      if (/Cannot read properties of null/.test(msg)) {
-        try {
-          await sht.close();
-          await sht.init();
-          const [t,h] = await Promise.all([sht.readTemperature(), sht.readHumidity()]);
-          out.temperature = Number(t.toFixed(2));
-          out.humidity = Number(h.toFixed(2));
-        } catch (e2) {
-          logger.warn('[Sensors] SHTC3 read error (after reinit)', { message: String(e2?.message || e2) });
-        }
-      } else {
-        logger.warn('[Sensors] SHTC3 read error', { message: msg });
-      }
+      const { temperature, humidity } = await sht.readPair();
+      out.temperature = temperature;
+      out.humidity    = humidity;
+    } catch (e) {
+      logger.warn('[Sensors] SHTC3 read error', { message: String(e?.message || e) });
     }
   }
 
